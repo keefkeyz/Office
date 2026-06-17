@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Office — Command Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --bg:        #07090F;
+    --surface:   #0E1118;
+    --surface2:  #141720;
+    --border:    rgba(255,255,255,0.07);
+    --border2:   rgba(255,255,255,0.04);
+    --gold:      #C9A84C;
+    --gold-dim:  rgba(201,168,76,0.15);
+    --gold-glow: rgba(201,168,76,0.08);
+    --white:     #F0F2F8;
+    --muted:     #4A5168;
+    --muted2:    #2E3347;
+    --noir:      #F59E0B;
+    --keef:      #818CF8;
+    --personal:  #34D399;
+    --ministry:  #A78BFA;
+    --claude:    #F59E0B;
+    --chatgpt:   #10A37F;
+    --codex:     #7C3AED;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    min-height: 100vh;
+    padding: 32px 28px 60px;
+    line-height: 1.5;
+  }
+
+  /* ─── TOP BAR ─── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo-mark {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #1a1408, #2a1f00);
+    border: 1px solid rgba(201,168,76,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .topbar-title h1 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .topbar-title p {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .date-display {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .date-display span {
+    color: var(--white);
+    font-weight: 500;
+  }
+  .day-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 100px;
+    background: var(--gold-dim);
+    border: 1px solid rgba(201,168,76,0.25);
+    color: var(--gold);
+  }
+
+  /* ─── AI RULE BAR ─── */
+  .ai-rule {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .ai-chip {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ai-chip .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .ai-chip .label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ai-chip .name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--white);
+  }
+  .ai-chip .role {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  /* ─── SECTION LABEL ─── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ─── PRIORITIES GRID ─── */
+  .priorities-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .domain-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .domain-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .domain-card.noir::before  { background: var(--noir); }
+  .domain-card.keef::before  { background: var(--keef); }
+  .domain-card.personal::before { background: var(--personal); }
+  .domain-card.ministry::before { background: var(--ministry); }
+
+  .domain-icon {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  .domain-name {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .domain-card.noir .domain-name     { color: var(--noir); }
+  .domain-card.keef .domain-name     { color: var(--keef); }
+  .domain-card.personal .domain-name { color: var(--personal); }
+  .domain-card.ministry .domain-name { color: var(--ministry); }
+
+  .priority-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .priority-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    color: #8896B0;
+  }
+  .priority-item .num {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .priority-item input[type="text"] {
+    background: none;
+    border: none;
+    outline: none;
+    color: #8896B0;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    width: 100%;
+    cursor: text;
+  }
+  .priority-item input[type="text"]::placeholder {
+    color: var(--muted2);
+    font-style: italic;
+  }
+  .priority-item input[type="text"]:focus {
+    color: var(--white);
+  }
+
+  /* ─── MIDDLE ROW ─── */
+  .middle-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  /* ─── TODAY'S FOCUS ─── */
+  .focus-card {
+    background: linear-gradient(145deg, #12183A, #0D1226);
+    border: 1px solid rgba(91,108,240,0.3);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 0 0 1px rgba(91,108,240,0.06), 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .focus-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .focus-header h3 {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #818CF8;
+  }
+  .focus-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .focus-item:last-child { border-bottom: none; }
+  .focus-check {
+    width: 18px; height: 18px;
+    border-radius: 5px;
+    border: 1px solid var(--muted2);
+    background: rgba(255,255,255,0.03);
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: transparent;
+    transition: all 0.15s;
+    margin-top: 1px;
+  }
+  .focus-check.done {
+    background: rgba(129,140,248,0.2);
+    border-color: #818CF8;
+    color: #818CF8;
+  }
+  .focus-text {
+    font-size: 13px;
+    color: #8896B0;
+    flex: 1;
+  }
+  .focus-text input {
+    background: none;
+    border: none;
+    outline: none;
+    color: #8896B0;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    width: 100%;
+  }
+  .focus-text input::placeholder { color: var(--muted2); font-style: italic; }
+  .focus-text input:focus { color: var(--white); }
+  .focus-tag {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 100px;
+    flex-shrink: 0;
+  }
+
+  /* ─── ACTIVE PROJECTS ─── */
+  .projects-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .projects-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .projects-header h3 {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .project-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border2);
+  }
+  .project-row:last-child { border-bottom: none; }
+  .project-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .project-name {
+    font-size: 12px;
+    color: var(--white);
+    font-weight: 500;
+    flex: 1;
+  }
+  .project-name input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    width: 100%;
+  }
+  .project-name input::placeholder { color: var(--muted2); font-style: italic; font-weight: 400; }
+  .project-status {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+  .status-build    { background: rgba(124,58,237,0.15); color: #A78BFA; border: 1px solid rgba(124,58,237,0.2); }
+  .status-active   { background: rgba(52,211,153,0.1);  color: #34D399; border: 1px solid rgba(52,211,153,0.2); }
+  .status-review   { background: rgba(245,158,11,0.1);  color: #F59E0B; border: 1px solid rgba(245,158,11,0.2); }
+  .status-planned  { background: rgba(129,140,248,0.1); color: #818CF8; border: 1px solid rgba(129,140,248,0.2); }
+  .status-paused   { background: rgba(100,116,139,0.1); color: #64748B; border: 1px solid rgba(100,116,139,0.2); }
+
+  .project-owner {
+    font-size: 10px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  /* ─── BOTTOM ROW ─── */
+  .bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  /* ─── DECISIONS LOCKED ─── */
+  .locked-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .locked-card h3 {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .locked-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border2);
+    font-size: 11px;
+    color: #8896B0;
+  }
+  .locked-item:last-child { border-bottom: none; }
+  .locked-icon { font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ─── THIS WEEK ─── */
+  .week-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .week-card h3 {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .day-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border2);
+    font-size: 11px;
+  }
+  .day-row:last-child { border-bottom: none; }
+  .day-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    width: 30px;
+    flex-shrink: 0;
+  }
+  .day-focus {
+    color: #8896B0;
+    flex: 1;
+    font-size: 11px;
+  }
+  .day-tool {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 100px;
+    flex-shrink: 0;
+  }
+  .tool-claude  { background: rgba(245,158,11,0.1); color: #F59E0B; }
+  .tool-chatgpt { background: rgba(16,163,127,0.1); color: #34D399; }
+  .tool-codex   { background: rgba(124,58,237,0.1); color: #A78BFA; }
+
+  /* ─── AI ROUTING ─── */
+  .routing-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .routing-card h3 {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .routing-item {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border2);
+  }
+  .routing-item:last-child { border-bottom: none; }
+  .routing-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .routing-tasks {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ─── STATUS BAR ─── */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .status-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #34D399;
+    box-shadow: 0 0 6px rgba(52,211,153,0.5);
+  }
+  .save-btn {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(201,168,76,0.3);
+    background: var(--gold-dim);
+    color: var(--gold);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .save-btn:hover {
+    background: rgba(201,168,76,0.25);
+    border-color: rgba(201,168,76,0.5);
+  }
+  .version-tag {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-mark">♞</div>
+    <div class="topbar-title">
+      <h1>The Office</h1>
+      <p>Keith Coston · Command Dashboard</p>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="date-display">Week of <span id="weekOf">—</span></div>
+    <div class="day-badge" id="todayBadge">—</div>
+  </div>
+</div>
+
+<!-- AI DECISION RULE -->
+<div class="section-label">AI Decision Rule</div>
+<div class="ai-rule">
+  <div class="ai-chip">
+    <div class="dot" style="background:#34D399;"></div>
+    <div>
+      <div class="label">Think</div>
+      <div class="name">ChatGPT</div>
+      <div class="role">Research · Analysis · Second Opinion</div>
+    </div>
+  </div>
+  <div class="ai-chip">
+    <div class="dot" style="background:#F59E0B;"></div>
+    <div>
+      <div class="label">Decide</div>
+      <div class="name">Claude</div>
+      <div class="role">Strategy · Writing · Execution</div>
+    </div>
+  </div>
+  <div class="ai-chip">
+    <div class="dot" style="background:#A78BFA;"></div>
+    <div>
+      <div class="label">Build & Operate</div>
+      <div class="name">Codex</div>
+      <div class="role">Automations · Systems · Pipelines</div>
+    </div>
+  </div>
+</div>
+
+<!-- DOMAIN PRIORITIES -->
+<div class="section-label">Current Priorities by Domain</div>
+<div class="priorities-grid">
+
+  <div class="domain-card noir">
+    <div class="domain-icon">☕</div>
+    <div class="domain-name">NOIR Coffee Co.</div>
+    <ul class="priority-list">
+      <li class="priority-item"><span class="num">01</span><input type="text" placeholder="Add priority…"/></li>
+      <li class="priority-item"><span class="num">02</span><input type="text" placeholder="Add priority…"/></li>
+      <li class="priority-item"><span class="num">03</span><input type="text" placeholder="Add priority…"/></li>
+    </ul>
+  </div>
+
+  <div class="domain-card keef">
+    <div class="domain-icon">🎵</div>
+    <div class="domain-name">Keef Keyz Productions</div>
+    <ul class="priority-list">
+      <li class="priority-item"><span class="num">01</span><input type="text" placeholder="Add priority…"/></li>
+      <li class="priority-item"><span class="num">02</span><input type="text" placeholder="Add priority…"/></li>
+      <li class="priority-item"><span class="num">03</span><input type="text" placeholder="Add priority…"/></li>
+    </ul>
+  </div>
+
+  <div class="domain-card personal">
+    <div class="domain-icon">🏠</div>
+    <div class="domain-name">Personal Ops</div>
+    <ul class="priority-list">
+      <li class="priority-item"><span class="num">01</span><input type="text" placeholder="Add priority…"/></li>
+      <li class="priority-item"><span class="num">02</span><input type="text" placeholder="Add priority…"/></li>
+    </ul>
+  </div>
+
+  <div class="domain-card ministry">
+    <div class="domain-icon">⛪</div>
+    <div class="domain-name">Ministry / TGHO</div>
+    <ul class="priority-list">
+      <li class="priority-item"><span class="num">01</span><input type="text" placeholder="Add priority…"/></li>
+      <li class="priority-item"><span class="num">02</span><input type="text" placeholder="Add priority…"/></li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- MIDDLE ROW -->
+<div class="middle-row">
+
+  <!-- TODAY'S FOCUS -->
+  <div class="focus-card">
+    <div class="focus-header">
+      <span style="font-size:14px;">⚡</span>
+      <h3>Today's Focus</h3>
+    </div>
+
+    <div class="focus-item">
+      <div class="focus-check" onclick="toggleCheck(this)">✓</div>
+      <div class="focus-text"><input type="text" placeholder="Top priority for today…"/></div>
+      <span class="focus-tag" style="background:rgba(245,158,11,0.1);color:#F59E0B;border:1px solid rgba(245,158,11,0.2);">NOIR</span>
+    </div>
+    <div class="focus-item">
+      <div class="focus-check" onclick="toggleCheck(this)">✓</div>
+      <div class="focus-text"><input type="text" placeholder="Second priority…"/></div>
+      <span class="focus-tag" style="background:rgba(129,140,248,0.1);color:#818CF8;border:1px solid rgba(129,140,248,0.2);">KEEF</span>
+    </div>
+    <div class="focus-item">
+      <div class="focus-check" onclick="toggleCheck(this)">✓</div>
+      <div class="focus-text"><input type="text" placeholder="Third priority…"/></div>
+      <span class="focus-tag" style="background:rgba(52,211,153,0.1);color:#34D399;border:1px solid rgba(52,211,153,0.2);">PERS</span>
+    </div>
+    <div class="focus-item" style="padding-top:12px;">
+      <div style="font-size:10px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;font-weight:600;">Defer today</div>
+      <div class="focus-text" style="margin-left:auto;"><input type="text" placeholder="What can wait…" style="text-align:right;color:var(--muted);"/></div>
+    </div>
+  </div>
+
+  <!-- ACTIVE PROJECTS -->
+  <div class="projects-card">
+    <div class="projects-header">
+      <h3>Active Projects</h3>
+      <span style="font-size:11px;color:var(--muted);">Update Sundays</span>
+    </div>
+
+    <div class="project-row">
+      <div class="project-dot" style="background:#A78BFA;"></div>
+      <div class="project-name"><input type="text" value="NOIR Meta Ad Pipeline"/></div>
+      <div class="project-status status-build">Build</div>
+      <div class="project-owner">Codex</div>
+    </div>
+    <div class="project-row">
+      <div class="project-dot" style="background:#F59E0B;"></div>
+      <div class="project-name"><input type="text" placeholder="Project name…"/></div>
+      <select class="project-status" style="background:none;border:none;outline:none;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;">
+        <option>Status</option>
+      </select>
+      <div class="project-owner">—</div>
+    </div>
+    <div class="project-row">
+      <div class="project-dot" style="background:#818CF8;"></div>
+      <div class="project-name"><input type="text" placeholder="Project name…"/></div>
+      <div class="project-status status-planned">Planned</div>
+      <div class="project-owner">—</div>
+    </div>
+    <div class="project-row">
+      <div class="project-dot" style="background:#34D399;"></div>
+      <div class="project-name"><input type="text" value="Home Buying Research"/></div>
+      <div class="project-status status-active">Active</div>
+      <div class="project-owner">ChatGPT</div>
+    </div>
+    <div class="project-row">
+      <div class="project-dot" style="background:#A78BFA;"></div>
+      <div class="project-name"><input type="text" placeholder="Project name…"/></div>
+      <div class="project-status status-planned">Planned</div>
+      <div class="project-owner">—</div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- BOTTOM ROW -->
+<div class="bottom-row">
+
+  <!-- DECISIONS LOCKED -->
+  <div class="locked-card">
+    <h3>🔒 Decisions Locked</h3>
+    <div class="locked-item"><span class="locked-icon">☕</span> Brand philosophy: "Discipline over motivation."</div>
+    <div class="locked-item"><span class="locked-icon">☕</span> Product line: Clarity · Harmony · Bold</div>
+    <div class="locked-item"><span class="locked-icon">☕</span> Social: Mon/Wed/Fri 8am ET · 9-post cycle</div>
+    <div class="locked-item"><span class="locked-icon">☕</span> Fulfillment: Dripshipper / Temecula</div>
+    <div class="locked-item"><span class="locked-icon">⚙️</span> Ad system: Claude Code + Higgsfield</div>
+    <div class="locked-item"><span class="locked-icon">🏠</span> Home buying: Active · Research phase</div>
+    <div class="locked-item"><span class="locked-icon">♟</span> AI stack: The Office framework · Final</div>
+  </div>
+
+  <!-- THIS WEEK -->
+  <div class="week-card">
+    <h3>📅 This Week</h3>
+    <div class="day-row">
+      <div class="day-label">Sun</div>
+      <div class="day-focus">Weekly plan + NOIR ad concepts</div>
+      <div class="day-tool tool-claude">Claude</div>
+    </div>
+    <div class="day-row">
+      <div class="day-label">Mon</div>
+      <div class="day-focus">Ad generation + Build sprint</div>
+      <div class="day-tool tool-codex">Codex</div>
+    </div>
+    <div class="day-row">
+      <div class="day-label">Tue</div>
+      <div class="day-focus">Deep research + Intel</div>
+      <div class="day-tool tool-chatgpt">ChatGPT</div>
+    </div>
+    <div class="day-row">
+      <div class="day-label">Wed</div>
+      <div class="day-focus">Content + Communications</div>
+      <div class="day-tool tool-claude">Claude</div>
+    </div>
+    <div class="day-row">
+      <div class="day-label">Thu</div>
+      <div class="day-focus">Strategy + Cross-domain review</div>
+      <div class="day-tool tool-claude">Claude</div>
+    </div>
+    <div class="day-row">
+      <div class="day-label">Fri</div>
+      <div class="day-focus">Context doc update + Week close</div>
+      <div class="day-tool tool-claude">Claude</div>
+    </div>
+  </div>
+
+  <!-- AI ROUTING -->
+  <div class="routing-card">
+    <h3>🧭 Quick Routing</h3>
+    <div class="routing-item">
+      <div class="routing-label" style="color:#34D399;">ChatGPT → Research</div>
+      <div class="routing-tasks">Markets · Competitors · Tech eval · Financial scenarios · Home buying</div>
+    </div>
+    <div class="routing-item">
+      <div class="routing-label" style="color:#F59E0B;">Claude → Strategy + Create</div>
+      <div class="routing-tasks">Briefs · Emails · SOPs · Reports · Decisions · Content · Planning</div>
+    </div>
+    <div class="routing-item">
+      <div class="routing-label" style="color:#A78BFA;">Codex → Build</div>
+      <div class="routing-tasks">Automations · Ad pipeline · Scripts · Integrations · Dashboards</div>
+    </div>
+    <div class="routing-item">
+      <div class="routing-label" style="color:var(--muted);">Handoff Pattern</div>
+      <div class="routing-tasks">Research → Claude → Decide → Codex → Build → Claude → Document</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="status-bar-item">
+    <div class="status-dot"></div>
+    The Office · All Systems Active
+  </div>
+  <div class="status-bar-item">
+    📁 Drive: Keith Coston AI Master — Office
+  </div>
+  <button class="save-btn" onclick="saveState()">Save Changes</button>
+  <div class="version-tag">Dashboard v1.0 · Updated <span id="lastSaved">Not yet saved</span></div>
+</div>
+
+<script>
+  // ── Live date
+  function updateDate() {
+    const now = new Date();
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    document.getElementById('todayBadge').textContent = days[now.getDay()];
+
+    // Monday of current week
+    const mon = new Date(now);
+    mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    document.getElementById('weekOf').textContent =
+      months[mon.getMonth()] + ' ' + mon.getDate() + ', ' + mon.getFullYear();
+  }
+  updateDate();
+
+  // ── Check toggle
+  function toggleCheck(el) {
+    el.classList.toggle('done');
+  }
+
+  // ── Save to localStorage
+  function saveState() {
+    const inputs = document.querySelectorAll('input[type="text"]');
+    const data = {};
+    inputs.forEach((inp, i) => { data['field_' + i] = inp.value; });
+    localStorage.setItem('theoffice_dashboard', JSON.stringify(data));
+
+    const checks = document.querySelectorAll('.focus-check');
+    const checkData = [];
+    checks.forEach(c => checkData.push(c.classList.contains('done')));
+    localStorage.setItem('theoffice_checks', JSON.stringify(checkData));
+
+    const now = new Date();
+    const saved = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) +
+                  ' · ' + now.toLocaleDateString([], {month:'short', day:'numeric'});
+    document.getElementById('lastSaved').textContent = saved;
+  }
+
+  // ── Load from localStorage
+  function loadState() {
+    const raw = localStorage.getItem('theoffice_dashboard');
+    if (raw) {
+      const data = JSON.parse(raw);
+      const inputs = document.querySelectorAll('input[type="text"]');
+      inputs.forEach((inp, i) => {
+        if (data['field_' + i] !== undefined) inp.value = data['field_' + i];
+      });
+    }
+    const checkRaw = localStorage.getItem('theoffice_checks');
+    if (checkRaw) {
+      const checkData = JSON.parse(checkRaw);
+      const checks = document.querySelectorAll('.focus-check');
+      checks.forEach((c, i) => {
+        if (checkData[i]) c.classList.add('done');
+      });
+    }
+  }
+  loadState();
+
+  // ── Auto-save on input
+  document.querySelectorAll('input[type="text"]').forEach(inp => {
+    inp.addEventListener('change', saveState);
+  });
+</script>
+
+</body>
+</html>
